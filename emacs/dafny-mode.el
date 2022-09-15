@@ -56,7 +56,7 @@
 (defconst dafny-keywords
   '("allocated" "as" "assert" "break" "by" "calc" "case" "downto" "else" "exists" "expect" "false"
     "qfor" "for" "forall" "fresh" "if" "in" "is" "exactly" "label" "match" "modify" "new" "null" "old"
-    "print" "return" "reveal" "then" "this" "to" "true" "unchanged" "var"
+    "print" "return" "reveal" "then" "this" "to" "true" "unchanged" "var" "with"
     "while" "yield"))
 
 (defconst dafny-dangerous
