@@ -188,7 +188,7 @@ greedily (the opening bracket is matched by \\s_).")
   "Regexp used to detect variable names optionally followed by a type.")
 
 (defconst boogie-friends-font-lock-assignment-chain (concat "\\(?:\\_<var\\_>\\s-*\\)?" "\\(?:" boogie-friends-font-lock-var-w-type "\\)"
-                                                            "\\(?:\\s-*,\\s-*" boogie-friends-font-lock-var-w-type "\\)*\\s-*:[=|]")
+                                                            "\\(?:\\s-*,\\s-*" boogie-friends-font-lock-var-w-type "\\)*\\s-*[:\\*][=|]")
   "Regexp used to detect [x, y:int, t := 1, 2, 3].")
 
 (defun boogie-friends-mark-font-lock-assignment-chain (limit)
