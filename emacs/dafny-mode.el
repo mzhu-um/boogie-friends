@@ -100,6 +100,10 @@
   "IDE extensions for the Dafny programming language."
   :group 'boogie-friends)
 
+(defcustom dafny-use-lsp t
+  "Use language server and disable checks in dafny mode."
+  :group 'dafny)
+
 (defcustom dafny-snippets-repo "etc/dafny-snippets"
   "Name of file holding Dafny snippets."
   :group 'dafny)
@@ -557,15 +561,17 @@ open Dafny buffers."
 
 (boogie-friends-def-exec dafny dafny "Dafny")
 
-(flycheck-define-command-checker 'dafny
-  "Flycheck checker for the Dafny programming language."
-  :command '("Dafny" (eval (boogie-friends-compute-prover-args)) source-inplace)
-  :error-patterns boogie-friends-error-patterns
-  :error-filter #'dafny-error-filter
-  :predicate #'dafny-predicate
-  :modes '(dafny-mode))
+(unless dafny-use-lsp
+  (flycheck-define-command-checker 'dafny
+    "Flycheck checker for the Dafny programming language."
+    :command '("Dafny" (eval (boogie-friends-compute-prover-args)) source-inplace)
+    :error-patterns boogie-friends-error-patterns
+    :error-filter #'dafny-error-filter
+    :predicate #'dafny-predicate
+    :modes '(dafny-mode))
+  (add-to-list 'flycheck-checkers 'dafny))
 
-(add-to-list 'flycheck-checkers 'dafny)
+
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.dfy\\'" . dafny-mode))
@@ -587,8 +593,9 @@ open Dafny buffers."
   (setq-local boogie-friends-symbols-alist (append '(("in" . ?∈) ("!in" . ?∉) ("!!" . ?‼))
                                                    boogie-friends-symbols-alist))
   (boogie-friends-mode-setup)
-  (add-to-list 'company-backends #'dafny-attributes-backend)
-  (set (make-local-variable 'flycheck-mode-line) '(:eval (dafny-mode-flycheck-mode-line)))
+  (unless dafny-use-lsp
+    (add-to-list 'company-backends #'dafny-attributes-backend)
+    (set (make-local-variable 'flycheck-mode-line) '(:eval (dafny-mode-flycheck-mode-line))))
   (set (make-local-variable 'indent-line-function) #'dafny-indent-keep-position)
   (set (make-local-variable 'indent-region-function) nil)
   (add-to-list (make-local-variable 'font-lock-extra-managed-props) 'composition)

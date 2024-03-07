@@ -57,11 +57,11 @@
 
 ;;;; Server options
 
-(defcustom lsp-dafny-server-automatic-verification-policy 'onchange
+(defcustom lsp-dafny-server-automatic-verification-policy 'Save
   "When to verify Dafny code."
   :type '(choice (const :tag "Never trigger verification automatically" Never)
-                 (const :tag "Verify on change" OnChange)
-                 (const :tag "Verify on save" OnSave)))
+                 (const :tag "Verify on change" Change)
+                 (const :tag "Verify on save" Save)))
 
 (defcustom lsp-dafny-server-verification-time-limit 10
   "How long to search for a proof before giving up."
@@ -73,7 +73,8 @@
 (defcustom lsp-dafny-server-args
   '("--cores 8"
     "--cache-verification 3"
-    "--notify-line-verification-status")
+    ;; "--notify-line-verification-status"
+    )
   "Dafny language server arguments."
   :risky t
   :type '(repeat string))
@@ -150,13 +151,13 @@ a directory name, or nil if VERNUM is `path'."
 
 (defun lsp-dafny--server-installed-executable ()
   "Compute the path to the installed version of DafnyLanguageServer."
-  (lsp-dafny--installed-executable "DafnyLanguageServer"))
+  (lsp-dafny--installed-executable "dafny"))
 
 (defun lsp-dafny--zip-url (vernum)
   "Compute the URL to download Dafny version VERNUM."
   (let ((platform
          (pcase system-type
-           ((or `gnu `gnu/linux) "ubuntu-16.04")
+           ((or `gnu `gnu/linux) "ubuntu-20.04")
            ((or `windows-nt `cygwin) "win")
            ((or `darwin) "osx-10.14.2")
            (other "Unsupported platform %S" other))))
@@ -545,18 +546,20 @@ Prefix each line with INDENT."
 (defun lsp-dafny--server-command ()
   "Compute the command to run Dafny's LSP server."
   `(,(lsp-dafny-ensure-executable (lsp-dafny--server-installed-executable))
-    ,(pcase lsp-dafny-server-automatic-verification-policy
-       ((and policy (or `Never `OnChange `OnSave))
-        (format "--verify-on %S" policy))
-       (other (user-error "Invalid value %S in \
-`lsp-dafny-server-automatic-verification-policy'" other)))
-    ,@(pcase lsp-dafny-server-verification-time-limit
-       (`nil nil)
-       ((and limit (pred integerp))
-        (list (format "--verification-time-limit %d" limit)))
-       (other (user-error "Invalid value %S in \
-`lsp-dafny-server-verification-time-limit'" other)))
-    ,@lsp-dafny-server-args))
+    "server"
+;;     ,(pcase lsp-dafny-server-automatic-verification-policy
+;;        ((and policy (or `Never `Change `Save))
+;;         (format "--verify-on %S" policy))
+;;        (other (user-error "Invalid value %S in \
+;; `lsp-dafny-server-automatic-verification-policy'" other)))
+;;     ,@(pcase lsp-dafny-server-verification-time-limit
+;;        (`nil nil)
+;;        ((and limit (pred integerp))
+;;         (list (format "--verification-time-limit %d" limit)))
+;;        (other (user-error "Invalid value %S in \
+;; `lsp-dafny-server-verification-time-limit'" other)))
+;;     ,@lsp-dafny-server-args
+    ))
 
 ;;;###autoload
 (defun lsp-dafny-register ()
@@ -565,6 +568,7 @@ Prefix each line with INDENT."
                '(dafny-mode . "dafny"))
   (lsp-register-client
    (make-lsp-client
+    :language-id "dafny"
     :new-connection (lsp-stdio-connection #'lsp-dafny--server-command)
     :activation-fn (lsp-activate-on "dafny")
     :server-id 'dafny
