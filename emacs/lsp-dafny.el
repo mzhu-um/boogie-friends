@@ -31,7 +31,7 @@
 
 ;;;; Installation options
 
-(defconst lsp-dafny-latest-known-version "3.9.0")
+(defconst lsp-dafny-latest-known-version "4.2.0")
 
 (defun lsp-dafny--version-safe-p (vernum)
   "Check whether VERNUM is a safe value for `lsp-dafny-preferred-version'."
@@ -43,22 +43,7 @@
   :safe #'lsp-dafny--version-safe-p
   :type '(choice (const :tag "Auto-install the latest version" nil)
                  (choice :tag "Auto-install a specific version"
-                         (const "3.9.0")
-                         (const "3.8.1")
-                         (const "3.8.0")
-                         (const "3.7.3")
-                         (const "3.7.2")
-                         (const "3.7.1")
-                         (const "3.7.0")
-                         (const "3.6.0")
-                         (const "3.5.0")
-                         (const "3.4.2")
-                         (const "3.4.1")
-                         (const "3.4.0")
-                         (const "3.3.0")
-                         (const "3.2.0")
-                         (const "3.1.0")
-                         (const "3.0.0")
+                         (const "4.2.0")
                          (string :tag "Other version"))
                  (const :tag "Find Dafny in your PATH" path)
                  (list :tag "Use a custom Dafny installation"
@@ -74,9 +59,9 @@
 
 (defcustom lsp-dafny-server-automatic-verification-policy 'onchange
   "When to verify Dafny code."
-  :type '(choice (const :tag "Never trigger verification automatically" never)
-                 (const :tag "Verify on change" onchange)
-                 (const :tag "Verify on save" onsave)))
+  :type '(choice (const :tag "Never trigger verification automatically" Never)
+                 (const :tag "Verify on change" OnChange)
+                 (const :tag "Verify on save" OnSave)))
 
 (defcustom lsp-dafny-server-verification-time-limit 10
   "How long to search for a proof before giving up."
@@ -85,7 +70,10 @@
 
 ;; TODO "--ghost:markStatements=true"
 
-(defcustom lsp-dafny-server-args '("--verifier:verifySnapshots=3")
+(defcustom lsp-dafny-server-args
+  '("--cores 8"
+    "--cache-verification 3"
+    "--notify-line-verification-status")
   "Dafny language server arguments."
   :risky t
   :type '(repeat string))
@@ -558,14 +546,14 @@ Prefix each line with INDENT."
   "Compute the command to run Dafny's LSP server."
   `(,(lsp-dafny-ensure-executable (lsp-dafny--server-installed-executable))
     ,(pcase lsp-dafny-server-automatic-verification-policy
-       ((and policy (or `never `onchange `onsave))
-        (format "--documents:verify=%S" policy))
+       ((and policy (or `Never `OnChange `OnSave))
+        (format "--verify-on %S" policy))
        (other (user-error "Invalid value %S in \
 `lsp-dafny-server-automatic-verification-policy'" other)))
     ,@(pcase lsp-dafny-server-verification-time-limit
        (`nil nil)
        ((and limit (pred integerp))
-        (list (format "--verifier:timelimit=%d" limit)))
+        (list (format "--verification-time-limit %d" limit)))
        (other (user-error "Invalid value %S in \
 `lsp-dafny-server-verification-time-limit'" other)))
     ,@lsp-dafny-server-args))

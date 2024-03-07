@@ -122,11 +122,11 @@ One of `cli', `server', or nil.
 * nil disables on-the-fly verification."
   :tag "Prover interface"
   :type '(radio (const :tag "CLI (slow, stable)" cli)
-                (const :tag "Server (fast, experimental)" server)
+                ;; (const :tag "Server (fast, experimental)" server)
                 (const :tag "None" nil))
   :group 'dafny)
 
-(defcustom dafny-prover-args '("/compile:0")
+(defcustom dafny-prover-args '("verify")
   "Arguments to pass to Dafny when checking a file.
 The name of the file itself is added last.  You can override all
 arguments here, or use `dafny-prover-custom-args' to add just a
@@ -138,14 +138,20 @@ few extra flags in addition to the default ones."
 These come in addition to `dafny-prover-args'."
   :group 'dafny)
 
-(defcustom dafny-prover-foreground-args '("/useBaseNameForFileName" "/timeLimit:30" "/vcsCores:4" "/showSnippets:1")
+(defcustom dafny-prover-foreground-args
+  '("--verification-time-limit 30"
+    "--cores 4"
+    "--show-snippets")
   "Extra arguments to pass to Dafny for compilation.
 These come in addition to `dafny-prover-args' and
 `dafny-prover-custom-args' and are used when manually launching
 verification (\\[boogie-friends-verify])."
   :group 'dafny)
 
-(defcustom dafny-prover-background-args '("/timeLimit:10" "/printTooltips")
+(defcustom dafny-prover-background-args
+  '("--verification-time-limit 30"
+    "--cores 4"
+    "--show-snippets")
   "Extra arguments to pass to Dafny for background verification.
 These come in addition to `dafny-prover-args' and
 `dafny-prover-custom-args'."
