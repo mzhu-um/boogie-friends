@@ -71,9 +71,9 @@
 ;; TODO "--ghost:markStatements=true"
 
 (defcustom lsp-dafny-server-args
-  '("--cores 8"
-    "--cache-verification 3"
-    ;; "--notify-line-verification-status"
+  '("--cores" "8"
+    "--cache-verification" "3"
+    "--notify-line-verification-status"
     )
   "Dafny language server arguments."
   :risky t
@@ -547,19 +547,19 @@ Prefix each line with INDENT."
   "Compute the command to run Dafny's LSP server."
   `(,(lsp-dafny-ensure-executable (lsp-dafny--server-installed-executable))
     "server"
-;;     ,(pcase lsp-dafny-server-automatic-verification-policy
-;;        ((and policy (or `Never `Change `Save))
-;;         (format "--verify-on %S" policy))
-;;        (other (user-error "Invalid value %S in \
-;; `lsp-dafny-server-automatic-verification-policy'" other)))
-;;     ,@(pcase lsp-dafny-server-verification-time-limit
-;;        (`nil nil)
-;;        ((and limit (pred integerp))
-;;         (list (format "--verification-time-limit %d" limit)))
-;;        (other (user-error "Invalid value %S in \
-;; `lsp-dafny-server-verification-time-limit'" other)))
-;;     ,@lsp-dafny-server-args
-    ))
+    ,@(pcase lsp-dafny-server-automatic-verification-policy
+        ((and policy (or `Never `Change `Save))
+         `("--verify-on" ,(symbol-name policy)))
+        (other (user-error "Invalid value %S in \
+`lsp-dafny-server-automatic-verification-policy'" other)))
+    ,@(pcase lsp-dafny-server-verification-time-limit
+        (`nil nil)
+        ((and limit (pred integerp))
+         `("--verification-time-limit"
+           ,(number-to-string limit)))
+        (other (user-error "Invalid value %S in \
+    `lsp-dafny-server-verification-time-limit'" other)))
+        ,@lsp-dafny-server-args))
 
 ;;;###autoload
 (defun lsp-dafny-register ()
