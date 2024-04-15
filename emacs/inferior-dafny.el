@@ -93,10 +93,10 @@
 (defvar dafny--flycheck-extra)
 (defvar dafny-verification-backend)
 
-(boogie-friends-def-exec dafny inferior-dafny "DafnyServer")
+(boogie-friends-def-exec dafny inferior-dafny "dafny")
 (defun flycheck-inferior-dafny-executable ()
   "Return `flycheck-inferior-dafny-executable' or a default value."
-  (or flycheck-inferior-dafny-executable "DafnyServer"))
+  (or flycheck-inferior-dafny-executable "dafny"))
 
 (defvar inferior-dafny--in-memory nil
   "If non-nil, pass the buffer contents as part of queries to the server.

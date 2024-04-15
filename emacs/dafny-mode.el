@@ -559,7 +559,7 @@ open Dafny buffers."
 (defun dafny-error-filter (errs)
   (boogie-friends-cleanup-errors (flycheck-increment-error-columns errs)))
 
-(boogie-friends-def-exec dafny dafny "Dafny")
+(boogie-friends-def-exec dafny dafny "dafny")
 
 (unless dafny-use-lsp
   (flycheck-define-command-checker 'dafny
